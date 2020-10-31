@@ -12,11 +12,14 @@ var floatingCount = 0;
 var isFloatingUp = true;
 var shouldFloatIncrement = true;
 var canUserAttack = true;
+var enemyFrame = 1;
+var doFrameIncrement = false
+var isFrameForward = true
 
 //- TEST STUFF -//
 var testHealth = 1000000
 var testHealthRemaining = testHealth
-var testName = "Pumpkin King"
+var testName = "Giant Skull"
 var shouldHealthDecrease = true
 var testAttackCooldown = 500
 //- TEST STUFF END -//
@@ -48,7 +51,7 @@ function drawName(name) {
     ctx.fillStyle = textColor;
     ctx.font = "" + canvas.height / 18 + "px Arial";
     ctx.textAlign = "center";
-    let render_name = "🎃 " + name + " 🎃";
+    var render_name = "🎃 " + name + " 🎃";
     ctx.fillText(render_name, canvas.width / 2, canvas.height / 18 + 15, canvas.width / 2);
     ctx.strokeStyle = textOutlineColor;
     ctx.lineWidth = 1
@@ -65,7 +68,7 @@ function hurtEnemy(cooldownTime) {
     }
 }
 
-function renderEnemy() {
+function renderEnemy(baseImageUrl, frames) {
     if (floatingCount >= 30) {
         isFloatingUp = false
     } else if (floatingCount <= 0) {
@@ -73,9 +76,20 @@ function renderEnemy() {
     }
     let enemy_width = canvas.width / 4
     let enemy_height = canvas.height / 2
+    document.getElementById("hiddenImagePreview").src = baseImageUrl + enemyFrame + ".png"
     // ctx.fillRect(canvas.width / 2 - (enemy_width / 2), canvas.height / 2 - (enemy_height / 2) + floatingCount, enemy_width, enemy_height)
     ctx.drawImage(document.getElementById("hiddenImagePreview"), canvas.width / 2 - (enemy_width / 2), canvas.height / 2 - (enemy_height / 2) + floatingCount, enemy_width, enemy_height)
-    isFloatingUp && shouldFloatIncrement ? floatingCount++ : floatingCount--;
+    if (doFrameIncrement) {
+        isFloatingUp && shouldFloatIncrement ? floatingCount++ : floatingCount--;
+        if (enemyFrame >= frames) {
+            isFrameForward = false
+        } else if (enemyFrame <= 1) {
+            isFrameForward = true
+        }
+        isFrameForward ? enemyFrame++ : enemyFrame--;
+        if (enemyFrame === 0) enemyFrame = 1;
+    }
+    doFrameIncrement = !doFrameIncrement
 }
 
 function updateHiddenImage(url) {
@@ -87,7 +101,7 @@ function animate() {
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     drawHealthBar(testHealthRemaining, testHealth)
     drawName(testName)
-    renderEnemy()
+    renderEnemy("/skull/skull", 9)
     window.requestAnimationFrame(animate)
 }
 
