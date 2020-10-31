@@ -137,7 +137,7 @@ def attacktheboss():
     iteminfo = json.loads(db.get_item(data['itemname']))
     totaldamage = user["curdmg"] + iteminfo["dmginc"]
     bosshealth = bosshealth - totaldamage
-    (db.set_boss_health(bn,bosshealth)
+    db.set_boss_health(bn,bosshealth)
     return jsonify({"currentbosshealth" : bosshealth }), 201
 
 @app.route('/getbosshealth', methods=['POST']) 
