@@ -77,11 +77,17 @@ def buy_consumable(email, consumable_name) :
 
 def get_boss(boss_name) :
     result = run_sql_return(f'SELECT * FROM bosses WHERE name = \'{boss_name}\'')
-    return json.dumps({'id': result[0][0], 'name': result[0][1], 'health' : result[0][2], 'image': result[0][3]})
+    return json.dumps({'id': result[0][0], 'name': result[0][1], 'health' : result[0][2]})
 
 def get_boss_health(boss_name) :
     result = run_sql_return(f'SELECT health FROM bosses WHERE name = \'{boss_name}\'')
     return json.dumps({'health' : result[0][0] })
+
+def boss_take_dmg(boss_name, amount) :
+    run_sql(f'UPDATE bosses SET health = health - {amount} WHERE name = \'{boss_name}\'')
+
+def set_boss_health(boss_name, amount) :
+    run_sql(f'UPDATE bosses SET health = {amount} WHERE name = \'{boss_name}\'')
 
 def run_sql(statement) :
     with conn.cursor() as cur:
@@ -104,9 +110,9 @@ def create_all_tables() :
     print("all tables are created")
 
 def fill_all_tables() :
-    run_sql('INSERT INTO items(name, price, cooldowntime, dmginc) VALUES(\'ice pack\', 100, 10, 0), (\'water cooling\', 1000, 100, 0), (\'liquid nitrogen\', 100000, 1000, 0), (\'damaging laser\', 1000, 0, 1000), (\'melting laser\', 10000, 0, 10000), (\'pulverizing laser\', 10000000, 0, 100000)')
+    run_sql('INSERT INTO items(name, price, cooldowntime, dmginc) VALUES(\'ice pack\', 100, 200, 0), (\'water cooling\', 1000, 300, 0), (\'liquid nitrogen\', 100000, 400, 0), (\'damaging laser\', 1000, 0, 200), (\'melting laser\', 10000, 0, 300), (\'pulverizing laser\', 10000000, 0, 400)')
     run_sql('INSERT INTO consumables(name, price, dmg, speedinc, dmgmult) VALUES(\'bomb\', 100, 10000, 0, 0), (\'speed potion\', 1000, 0, 10000, 0), (\'acid pot\', 10000, 0, 0, 2), (\'companion\', 100000, 0, 0, 2)')
-    run_sql('INSERT INTO bosses(name, health) VALUES(\'pumpkin king\', 10000000), (\'skeleton head\', 1000000), (\'candy man\', 10000000)')
+    run_sql('INSERT INTO bosses(name, health) VALUES(\'pumpkin king\', 10000000), (\'skeleton head\', 10000000), (\'candy man\', 10000000)')
     print("all tables have been filled")
 
 def clear_all_data() :
@@ -138,13 +144,13 @@ def test_all_methods() :
     print(get_userinventory("kilmo@gmail.com"))
     consume("kilmo@gmail.com", "speed potion")
     print(get_userinventory("kilmo@gmail.com"))
+    boss_take_dmg("pumpkin king", 100)
+    print(get_boss_health("pumpkin king"))
 
 def cipher() :
     requests.get()
     key = secrets.token_bytes(16)
     return key
-    
-drop_all_tables()
-create_all_tables()
-fill_all_tables()
-test_all_methods()
+
+boss_take_dmg("pumpkin king", 100)
+print(get_boss_health("pumpkin king"))
