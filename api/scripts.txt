@@ -1,11 +1,24 @@
 cockroach sql --url "postgres://zslocum@cursed-clicker-5zg.gcp-us-west2.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full&sslrootcert=C:\Users\Zaner\Downloads\cursed-clicker-ca.crt"
 
-CREATE TABLE users(id serial PRIMARY KEY, username STRING, password STRING, curdmg int, curbalance int)
+CREATE TABLE users(id serial PRIMARY KEY, email STRING UNIQUE, username STRING, password STRING, curdmg int, curbalance int)
 CREATE TABLE userinventories(userid serial NOT NULL REFERENCES users (id), icepack BOOL, watercooling BOOL, liquidnitrogen BOOL, damaginglaser BOOL, meltinglaser BOOL, pulverizinglaser BOOL, bomb int, speedpotion int, acidpot int, companion int)
 CREATE TABLE items(id serial PRIMARY KEY, name STRING, price int, cooldowntime int, dmginc int)
-CREATE TABLE consumables(id serial PRIMARY KEY, name STRING, price int, dmg int, speedinc int, dmgmult)
+CREATE TABLE consumables(id serial PRIMARY KEY, name STRING, price int, dmg int, speedinc int, dmgmult int)
 CREATE TABLE bosses(id serial PRIMARY KEY, name STRING, health int)
 
 INSERT INTO items(name, price, cooldowntime, dmginc) VALUES('ice pack', 100, 10, 0), ('water cooling', 1000, 100, 0), ('liquid nitrogen', 100000, 1000, 0), ('damaging laser', 1000, 0, 1000), ('melting laser', 10000, 0, 10000), ('pulverizing laser', 10000000, 0, 100000)
 INSERT INTO consumables(name, price, dmg, speedinc, dmgmult) VALUES('bomb', 100, 10000, 0, 0), ('speed potion', 1000, 0, 10000, 0), ('acid pot', 10000, 0, 0, 2), ('companion', 100000, 0, 0, 2)
 INSERT INTO bosses(name, health) VALUES('pumpkin king', 10000000), ('skeleton head', 1000000), ('candy man', 10000000)
+
+def test_all_methods() :
+    add_user("kilmo@gmail.com", "kilmo", "lima")
+    print(get_item("water cooling"))
+    print(get_consumable("bomb"))
+    print(get_userinventory("kilmo@gmail.com")
+    give_money("kilmo@gmail.com", 100000)
+    buy_item("kilmo@gmail.com", "water cooling")
+    print(get_userinventory("kilmo"))
+    buy_consumable("kilmo@gmail.com", "speed potion")
+    print(get_userinventory("kilmo"))
+    consume("kilmo@gmail.com", "speed potion")
+    print(get_userinventory("kilmo"))
