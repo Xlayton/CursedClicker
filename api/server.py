@@ -119,17 +119,22 @@ def getplayerbalance():
 def getplayerinventory():
     return jsonify(x.inventory), 201
 
-@app.route('/addtoplayerinventory', methods=['POST']) 
-def addtoplayerinventory():
+@app.route('/buyconsumable', methods=['POST']) 
+def buyconsumable():
     data = request.json
-    x.inventory.append(data)
-    return jsonify(x.inventory), 201
+    email = data['email']
+    item_name = data['itemname']
+    db.buy_consumable(email, item_name)
+    user = json.loads(db.get_user(email))
+    user.inventory.append(data)
+    return jsonify(user.inventory), 201
 
 @app.route('/buyitem', methods=['POST']) 
 def buyitem():
     data = request.json
     itemname = data['itemname']
-    (db.buy_item("123@test.com", itemname))
+    email = data['email']
+    (db.buy_item(email, itemname))
     return "item was purchased", 201
 
 @app.route('/consume', methods=['POST']) 
