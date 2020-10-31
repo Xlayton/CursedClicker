@@ -14,19 +14,137 @@ body {
     display: grid;
     grid-template-rows: 80% 20%;
     grid-template-columns: 80% 20%;
-    grid-template-areas: "game shop""items ."
+    grid-template-areas: "game shop""items filler";
+    overflow: hidden;
+}
+
+#gameArea * {
+    user-select: none;
 }
 
 #canvasArea {
     grid-area: game;
+    border-bottom: 1px solid #000;
+    border-right: 1px solid #000;
 }
 
 #shopArea {
     grid-area: shop;
     border-bottom: 1px solid #000;
+    position: relative;
+}
+
+#fillerArea {
+    grid-area: filler;
+    background-color: #656565;
+}
+
+#shopArea * {
+    user-select: none;
+}
+
+#shopItems {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.item .item-name {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.item .item-name p {
+    margin: 0;
+}
+
+#shopItems img {
+    width: 25%;
+}
+
+#shopItems {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #656565;
+}
+
+#shopCategories {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#shopCategories p {
+    width: 100%;
+    height: 100%;
+    background-color: #454545;
+    color: #fff;
+    border: 1px solid #000;
+    text-align: center;
+    margin: 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+#shopCategories p:hover {
+    background-color: #555555;
+}
+
+#shopCategories p.selected {
+    background-color: #656565;
+    border-bottom: 1px solid #656565;
+}
+
+#itemCategories {
+    display: flex;
+    justify-content: space-evenly;
+    width: 25%;
+}
+
+#itemCategories p {
+    width: 100%;
+    height: 100%;
+    background-color: #454545;
+    color: #fff;
+    border: 1px solid #000;
+    text-align: center;
+    margin: 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+#itemCategories p:hover {
+    background-color: #555555;
+}
+
+#itemCategories p.selected {
+    background-color: #656565;
+    border-bottom: 1px solid #656565;
+}
+
+#itemItems img {
+    height: 25%;
+}
+
+#itemItems {
+    background-color: #656565;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
 }
 
 #itemArea {
     grid-area: items;
     border-right: 1px solid #000;
+    background-color: #656565;
+    position: relative;
 }

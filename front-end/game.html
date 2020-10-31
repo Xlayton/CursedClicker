@@ -17,8 +17,21 @@
         <div id="canvasArea">
             <canvas id="gameCanvas"></canvas>
         </div>
-        <div id="shopArea"></div>
-        <div id="itemArea"></div>
+        <div id="shopArea">
+            <div id="shopCategories">
+                <p id="shopUpgrades" class="shopCategory">Upgrades</p>
+                <p id="shopConsumables" class="shopCategory selected">Consumables</p>
+            </div>
+            <div id="shopItems"></div>
+        </div>
+        <div id="itemArea">
+            <div id="itemCategories">
+                <p id="itemUpgrades" class="itemCategory">Upgrades</p>
+                <p id="itemConsumables" class="itemCategory selected">Consumables</p>
+            </div>
+            <div id="itemItems"></div>
+        </div>
+        <div id="fillerArea"></div>
         <img id="hiddenImagePreview" style="display:none" src="pumpkin1.png" />
     </div>
     <script src="/js/game.js"></script>
