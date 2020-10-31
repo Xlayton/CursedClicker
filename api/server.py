@@ -114,12 +114,8 @@ def consume():
     email = data['email']
     json.loads(db.consume(email, consumable_name))
     return "item was consumed", 201
-# @app.route('/setequippedweapon', methods=['POST']) 
-# def buyitem():
-#     data = request.json
-#     weaponname = data['weaponname']
-#     (db.buy_item("123@test.com", itemname))
-#     return "item was purchased", 201
+
+
 
 #boss functions
 @app.route('/updatebosshealth', methods=['POST']) 
@@ -135,14 +131,20 @@ def attacktheboss():
     useremail = data["email"]
     user_inventory = json.loads(db.get_userinventory(useremail))
     user = json.loads(db.get_user(useremail))
+    bn = data['boss_name']
+    bosshealth = json.loads(db.get_boss_health(bn))
     iteminfo = json.loads(db.get_item(data['itemname']))
     totaldamage = user["curdmg"] + iteminfo["dmginc"]
-    b.health = b.health - totaldamage
-    return jsonify({"currentbosshealth" : b.health }), 201
+    bosshealth = bosshealth - totaldamage
+    (db.set_boss_health(bn,bosshealth)
+    return jsonify({"currentbosshealth" : bosshealth }), 201
 
 @app.route('/getbosshealth', methods=['POST']) 
 def getbosshealth():
-    return jsonify({"currentbosshealth" : b.currentbosshealth }), 201
+    data = request.json
+    bn = data['boss_name']
+    bosshealth = json.loads(db.get_boss_health(bn))
+    return jsonify({"currentbosshealth" : bosshealth }), 201
 
 # @app.route('/updatebossdamage', methods=['POST']) 
 # def updatebossdamage():
@@ -151,9 +153,7 @@ def getbosshealth():
 #     b.currentbossdamage = newbossdamage
 #     return jsonify({"currentbossdamage" : b.currentbossdamage }), 201
 
-@app.route('/getbossdamage', methods=['POST']) 
-def getbossdamage():
-    return jsonify({"currentbossdamage" : b.currentbossdamage }), 201
+
 
 
 
