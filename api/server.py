@@ -15,14 +15,22 @@ app = Flask(__name__)
 
 # print(x.currentplayerdamage + iteminfo["dmginc"])
 
-# salt = bcrypt.gensalt()
-# hashed = bcrypt.hashpw(str.encode('pass'), salt)
-# hashpass = hashed
-# db.add_user("testaccount@web.com","test",hashpass.decode("utf-8"))
+
 
 
 
 #player functions
+@app.route('/register', methods=['POST']) 
+def register():
+    data = request.json
+    email = data["email"]
+    salt = bcrypt.gensalt()
+    passwd = data["password"]
+    uname = data["uname"]
+    hashed = bcrypt.hashpw(str.encode(passwd), salt)
+    hashpass = hashed
+    db.add_user(email,uname,hashpass.decode("utf-8"))
+    return "user registered", 201
 
 @app.route('/login', methods=['POST']) 
 def login():
