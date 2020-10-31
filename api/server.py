@@ -12,65 +12,13 @@ app = Flask(__name__)
 #         hashed = bcrypt.hashpw(passwd, salt)
 #         hashpass = hashed
 
-class player:
-    def __init__(self,uid, uname, passwd, currenthealth, currentbalance, currentplayerdamage,damagemodifier):
-        self.uid = uid
-        self.uname = uname
-        self.password = passwd
-        self.currenthealth = currenthealth
-        self.currentbalance = currentbalance
-        self.currentplayerdamage = currentplayerdamage
-        self.damagemodifier = damagemodifier
-        self.currentbosshealth = 50
-        self.inventory = []
-        self.currentlyepquippedweapon = ''
 
-    
-  
-class boss:
-    def __init__(self,health,damage,type,imgpath,frames):
-        self.health = health
-        self.damage = damage
-        self.type = "pumpkin"
-        self.imgpath = imgpath
-        self.frames = frames
+# print(x.currentplayerdamage + iteminfo["dmginc"])
 
-# class boss:
-
-#     def __init__(self,currentbosshealth, currentbossdamage):
-#         self.currentbossdamage = currentbossdamage
-#         self.currentbosshealth = currentbosshealth
-     
-
-
-# db.add_user("123@test.com","josh",x.password.decode("utf-8"))
-
-user = json.loads(db.get_user("123@test.com"))
-uid = user['id']
-uname = user['username']
-passwd = user['password']
-dam = user["curdmg"]
-currentbal = user["curbalance"]
-
-x = player(uid, uname, passwd,100,currentbal,dam, 10)
-b = boss(50,50,"pumpkin","imgpath","frames")
-
-    # b = boss(2000,20)
-    
-user_inventory = json.loads(db.get_userinventory("123@test.com"))
-iteminfo = json.loads(db.get_item('water cooling'))
-print(user_inventory)
-    # db.give_money("123@test.com", 9999999)
-(db.buy_item("123@test.com", 'melting laser'))
-   
-if (user_inventory["meltinglaser"]):
-    print("hello")
-
-
-print(x.currentplayerdamage + iteminfo["dmginc"])
-
-
-
+# salt = bcrypt.gensalt()
+# hashed = bcrypt.hashpw(str.encode('pass'), salt)
+# hashpass = hashed
+# db.add_user("testaccount@web.com","test",hashpass.decode("utf-8"))
 
 
 
@@ -84,39 +32,60 @@ def login():
     password = data["password"]
 
     salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(passwd, salt)
+    hashed = bcrypt.hashpw(str.encode(password), salt)
     hashpass = hashed
-    if (hashpass == user["password"]):
-        return "passwords match", 201
+    print(hashpass)
+    print(user["password"])
+    print(hashpass)
+    if bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
+       
+        uid = user['id']
+        uname = user['username']
+        passwd = user['password']
+        dam = user["curdmg"]
+        currentbal = user["curbalance"]
+        # x = player(uid, uname, passwd,100,currentbal,dam, 10)
+        return email, 201
     else:
-        return "passwords do not match",201
+        return "passwords do not match",400
 
     
-
-@app.route('/updateplayerdamage', methods=['POST']) 
-def updateplayerdamage():
-    data = request.json
-    newplayerdamage = x.currentplayerdamage + data["damagemodifier"]
-    x.currentplayerdamage = newplayerdamage
-    return jsonify({"newplayerdamage" : newplayerdamage }), 201
+# we dont need this one because the way to update this is through better items
+# @app.route('/updateplayerdamage', methods=['POST']) 
+# def updateplayerdamage():
+#     data = request.json
+#     email = data["email"]
+#     user = json.loads(db.get_user(email))
+#     newplayerdamage = user["curdmg"] + data["damagemodifier"]
+#     user["curdmg"] = newplayerdamage
+#     return jsonify({"newplayerdamage" : user["curdmg"] }), 201
 
 @app.route('/getplayerdamage', methods=['POST']) 
 def getplayerdamage():
-    return jsonify({"currentplayerdamage" : x.currentplayerdamage }), 201
+    data = request.json
+    email = data["email"]
+    user = json.loads(db.get_user(email))
+    return jsonify({"currentplayerdamage" : user["curdmg"] }), 201
 
 @app.route('/updateplayerbalance', methods=['POST']) 
 def updateplayerbalance():
     data = request.json
-    newplayerbalance = x.currentbalance + data["playerbalancemodifier"]
-    x.currentbalance = newplayerbalance
-    return jsonify({"currentplayerbalance" : newplayerbalance }), 201
+    email = data["email"]
+    amount = data["amount"]
+    db.give_money(email,amount)
+    user = json.loads(db.get_user(email))
+    return jsonify({"currentplayerbalance" : user["curbalance"] }), 201
 
 @app.route('/getplayerbalance', methods=['POST']) 
 def getplayerbalance():
-    return jsonify({"currentplayerbalance" : x.currentbalance }), 201
+    data = request.json
+    email = data["email"]
+    user = json.loads(db.get_user(email))
+    return jsonify({"currentplayerbalance" : user["curbalance"] }), 201
 
 @app.route('/getplayerinventory', methods=['POST']) 
 def getplayerinventory():
+<<<<<<< HEAD
     return jsonify(x.inventory), 201
 
 @app.route('/buyconsumable', methods=['POST']) 
@@ -128,14 +97,33 @@ def buyconsumable():
     user = json.loads(db.get_user(email))
     user.inventory.append(data)
     return jsonify(user.inventory), 201
+=======
+    data = request.json
+    email = data['email']
+    user = json.loads(db.get_userinventory(email))
+    return user, 201
+
+# @app.route('/addtoplayerinventory', methods=['POST']) 
+# def addtoplayerinventory():
+#     data = request.json
+#     data['email']
+#     user = json.loads(db.get_userinventory(email))
+#     return jsonify(x.inventory), 201
+>>>>>>> db94e9820922e4872a8434158fc5ac16b74cf6cf
 
 @app.route('/buyitem', methods=['POST']) 
 def buyitem():
     data = request.json
-    itemname = data['itemname']
     email = data['email']
+    itemname = data['itemname']
+<<<<<<< HEAD
+    email = data['email']
+=======
+>>>>>>> db94e9820922e4872a8434158fc5ac16b74cf6cf
     (db.buy_item(email, itemname))
     return "item was purchased", 201
+
+
 
 @app.route('/consume', methods=['POST']) 
 def consume():
