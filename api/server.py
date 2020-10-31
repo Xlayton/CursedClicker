@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, make_response, request, abort
 import bcrypt
+import db
+
 
 app = Flask(__name__)
 
@@ -33,8 +35,21 @@ class boss:
         self.currentbosshealth = currentbosshealth
         self.type = 'pumpkin'
 
-    
-x = player(00,'bob',b'bbqbob',1000,2000,10,5)
+killme = str(x.password)
+print(type(killme))
+# db.add_user("123@test.com","josh",x.password.decode("utf-8"))
+
+user = json.loads(db.get_user("123@test.com"))
+uid = user['id']
+uname = user['username']
+passwd = user['password']
+dam = user["curdmg"]
+currentbal = user["curbalance"]
+
+user_inventory = json.loads(db.get_userinventory("123@test.com"))
+
+x = player(uid, uname, passwd,100,currentbal,dam, 10 )
+
 b = boss(2000,20,'pumpkin')
 
     
