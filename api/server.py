@@ -1,5 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, make_response, request, abort
 import bcrypt
+
+
+
 
 
 app = Flask(__name__)
@@ -11,18 +14,75 @@ uname = 'bob'
 salt = bcrypt.gensalt()
 hashed = bcrypt.hashpw(passwd, salt)
 hashpass = hashed
-currentdamage = ''
+currentdamage = '100'
+adddamage = '10'
+currenthealth = '10000000'
+currentbalance = 'x'
 
 
-data = [
-    {'name': 'Josh'},
-    {'name': 'Bob'}
-]
+data = [{
+    "user" : [{
+    "name": "bob"
+    }]
+}]
+
+# userdata = jsonify[{
+#     "user" : [{
+#     "uid": uid,
+#     "username": uname,
+#     "currentdamage" : currentdamage,
+#     "currentbalance": currentbalance,
+#     "damagemodifier": 10
+#     }]
+# }]
+# bossdata = jsonify[{
+#     "boss" : [{
+#     "uid" : uid,
+#     "type": "pumpkin",
+#     "currentdamage": currentdamage,
+#     "currentbosshealth" : currentbosshealth,
+#     "damagemodifier": damagemodifier
+#     }]
+# }]
 
 
-@app.route("/datapost", methods=["POST"])
-def getData():
-    return jsonify(data)
+@app.route('/getuserdata', methods=['POST']) 
+def create_task():
+
+ 
+   
+    userdata = jsonify({
+    "user" : [{
+    "uname": uname,
+    "uid" : uid,
+    "currentdamage" : currentdamage,
+    "currentbosshealth": 100,
+    "currentbalance": currentbalance
+
+    }]
+})
+    user = request.json
+    data.append(user)
+    return userdata, 201
+
+# @app.route('/updateplayerdamage', methods=['POST']) 
+# def create_task():
+
+   
+#     userdata = jsonify({
+#     "user" : [{
+#     "uid" : uid,
+#     "currentdamage" : currentdamage,
+#     "currenthealth": currenthealth,
+#     "currentbalance": currentbalance,
+#     "damagemodifier": damagemodifier
+#     }]
+# })
+#     user = request.json
+#     userdata["currenthealth"] = userdata["currenthealth"] + userdata["damagemodifier"]
+#     print(userdata[currenthealth])
+#     return userdata, 201
+
 
 
 
