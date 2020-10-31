@@ -1,21 +1,24 @@
 from flask import Flask, jsonify, make_response, request, abort
 import bcrypt
 import db
+import json
+import asyncio
 
 
 app = Flask(__name__)
 
-
+#for creating a user
+#  salt = bcrypt.gensalt()
+#         hashed = bcrypt.hashpw(passwd, salt)
+#         hashpass = hashed
 
 class player:
 
     def __init__(self,uid, uname, passwd, currenthealth, currentbalance, currentplayerdamage,damagemodifier):
         self.uid = uid
         self.uname = uname
-        salt = bcrypt.gensalt()
-        hashed = bcrypt.hashpw(passwd, salt)
-        hashpass = hashed
-        self.password = hashpass
+       
+        self.password = passwd
         self.currenthealth = currenthealth
         self.currentbalance = currentbalance
         self.currentplayerdamage = currentplayerdamage
@@ -35,23 +38,34 @@ class boss:
         self.currentbosshealth = currentbosshealth
         self.type = 'pumpkin'
 
-killme = str(x.password)
-print(type(killme))
+
 # db.add_user("123@test.com","josh",x.password.decode("utf-8"))
+async def methodname():
+    user = json.loads(db.get_user("123@test.com"))
+    uid = user['id']
+    uname = user['username']
+    passwd = user['password']
+    dam = user["curdmg"]
+    currentbal = user["curbalance"]
 
-user = json.loads(db.get_user("123@test.com"))
-uid = user['id']
-uname = user['username']
-passwd = user['password']
-dam = user["curdmg"]
-currentbal = user["curbalance"]
+    x = player(uid, uname, passwd,100,currentbal,dam, 10 )
 
-user_inventory = json.loads(db.get_userinventory("123@test.com"))
+    b = boss(2000,20,'pumpkin')
+    user_inventory = json.loads(db.get_userinventory("123@test.com"))
+    iteminfo = json.loads(db.get_item('water cooling'))
+    print(user_inventory)
+    # db.give_money("123@test.com", 9999999)
+    (db.buy_item("123@test.com", 'melting laser'))
+    await asyncio.sleep(1)
+    if (user_inventory["meltinglaser"]):
+        print("hello")
 
-x = player(uid, uname, passwd,100,currentbal,dam, 10 )
 
-b = boss(2000,20,'pumpkin')
+    print(x.currentplayerdamage + iteminfo["dmginc"])
 
+
+
+asyncio.run(methodname())
     
 
 
@@ -88,6 +102,12 @@ def addtoplayerinventory():
     x.inventory.append(data)
     return jsonify(x.inventory), 201
 
+@app.route('/buyitem', methods=['POST']) 
+def buyitem():
+    data = request.json
+    itemname = data['itemname']
+    (db.buy_item("123@test.com", itemname))
+    return "item was purchased", 201
 
 
 #boss functions
