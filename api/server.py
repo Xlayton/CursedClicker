@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response, request, abort, Response
+from flask import Flask, jsonify, make_response, request, abort, Response, send_from_directory
 import bcrypt
 import db
 import json
@@ -18,6 +18,25 @@ CORS(app)
 
 
 
+@app.route('/<path:filename>')
+def image(filename):
+    try:
+        w = int(request.args['w'])
+        h = int(request.args['h'])
+    except (KeyError, ValueError):
+        return send_from_directory('.', filename)
+
+    try:
+        im = Image.open(filename)
+        im.thumbnail((w, h), Image.ANTIALIAS)
+        io = StringIO.StringIO()
+        im.save(io, format='JPEG')
+        return Response(io.getvalue(), mimetype='image/jpeg')
+
+    except IOError:
+        abort(404)
+
+    return send_from_directory('.', filename)
 
 
 #player functions
@@ -119,13 +138,12 @@ def getcooldown():
         if(a.liquidnitrogen) :
             b = json.loads(db.get_item("liquid nitrogen"))
             return b['cooldowntime']
-        else if(a.watercooling) :
+        elif(a.watercooling) :
             b = json.loads(db.get_item("water cooling"))
             return b['cooldowntime']
-        else if(a.icepack) :
+        elif(a.icepack) :
             b = json.loads(db.get_item("ice pack"))
-            return b['cooldowntime'])
-        a["icepack"]
+            return b['cooldowntime']
 
 @app.route('/updateplayerbalance', methods=['POST']) 
 def updateplayerbalance():
@@ -259,26 +277,20 @@ def getbosshealth():
 
 
 @app.route('/getimage', methods=['POST']) 
-def buyconsumable():
+def getimages():
     data = request.json
     api_key = data["key"]
-    
     valid = db.confirm_key(api_key)
     if (valid) :
         email = data['email']
         item_name = data['itemname']
         bosstype = data["bosstype"]
-        switch(bosstype):
-            case "pumpkin":
-                return jsonify({"type":"pumpkin","numberofFrames":10,"path":"pumpkin"}), 201
-            break
-            case "skull":
-                return jsonify({"type":"skull","numberofFrames":9,"path":"skull"}), 201
-            break
-            case "candymonster":
-                return jsonify({"type":"candy","numberofFrames":10,"path":"candy"}), 201
-            break
-
+        if bosstype == "pumpkin":
+            return jsonify({"type":"pumpkin","numberofFrames":10,"path":"pumpkin"}), 201
+        elif bosstype == "skull":
+            return jsonify({"type":"skull","numberofFrames":9,"path":"skull"}), 201
+        elif bosstype == "candymonster":
+            return jsonify({"type":"candy","numberofFrames":10,"path":"candy"}), 201
     else :
         return jsonify({"message" : "no key provided"}), 400
 # @app.route('/updatebossdamage', methods=['POST']) 
