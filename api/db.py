@@ -52,7 +52,7 @@ def get_userinventory(email, api_key) :
     data = json.loads(get_user(email))
     userid = data['id']
     result = run_sql_return(f'SELECT * FROM userinventories WHERE userid = \'{userid}\'')
-    return json.dumps({'id': result[0][0], 'icepack': result[0][1], 'watercooling': result[0][2], 'liquidnitrogen' : result[0][3], 'damaginglaser': result[0][4], 'meltinglaser': result[0][5], 'pulverizinglaser' : result[0][6], 'bomb' : result[0][7], 'speedpotion' : result[0][8], 'acidpot' : result[0][9], 'companion' : result[0][10]})
+    return json.dumps({'id': result[0][0], 'icepack': { "value" : result[0][1], "type" : "upgrade", "imgpath" : "/upgrades/ice-pack/icepack1.png"}, 'watercooling': { "value" : result[0][2], "type" : "upgrade", "imgpath" : "/upgrades/water-cooling/water-cooling1.png"}, 'liquidnitrogen' : { "value" : result[0][3], "type" : "upgrade", "imgpath" : "/upgrades/nitrogen/nitrogen1.png"}, 'damaginglaser': { "value" : result[0][4], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser1.png"}, 'meltinglaser': { "value" : result[0][5], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser2.png"}, 'pulverizinglaser' : { "value" : result[0][6], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser3.png"}, 'bomb' : { "value" : result[0][7], "type" : "consumable", "imgpath" : "/consumable/bomb/bomb1.png"}, 'speedpotion' : {"value" : result[0][8], "type" : "consumable", "imgpath" : "/consumable/potion/potion1.png"}, 'acidpot' : {"value" : result[0][9], "type" : "consumable"}, 'companion' : { "value" : result[0][10], "type" : "consumable", "imgpath" : "/consumable/companion/companion1.png"})
 
 def get_item(name) :
     result = run_sql_return(f'SELECT * FROM items WHERE name = \'{name}\'')

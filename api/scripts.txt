@@ -2,7 +2,7 @@ cockroach sql --url "postgres://zslocum@cursed-clicker-5zg.gcp-us-west2.cockroac
 
 CREATE TABLE users(id serial PRIMARY KEY, email STRING UNIQUE, username STRING, password STRING, curdmg int, curbalance int)
 CREATE TABLE userinventories(userid serial NOT NULL REFERENCES users (id), icepack BOOL, watercooling BOOL, liquidnitrogen BOOL, damaginglaser BOOL, meltinglaser BOOL, pulverizinglaser BOOL, bomb int, speedpotion int, acidpot int, companion int)
-CREATE TABLE items(id serial PRIMARY KEY, name STRING, price int, cooldowntime int, dmginc int)
+CREATE TABLE items(id serial PRIMARY KEY, name STRING, price int, cooldowntime int, dmginc int, type STRING)
 CREATE TABLE consumables(id serial PRIMARY KEY, name STRING, price int, dmg int, speedinc int, dmgmult int)
 CREATE TABLE bosses(id serial PRIMARY KEY, name STRING, health int)
 CREATE TABLE api_keys(key STRING PRIMARY KEY UNIQUE, userid serial REFERENCES users (id), ipaddress STRING)
