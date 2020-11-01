@@ -1,4 +1,3 @@
-import wmi
 import random
 from datetime import datetime
 import psycopg2
@@ -177,16 +176,8 @@ def generate_api_key() :
     alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`!@#$%^&*"
     result = ""
     for x in range(12):
-        temp = get_temps()*100000000000000
-        tempunit = random.randint(0, 2)
-        if tempunit == 0 :
-            temp = temp
-        if tempunit == 1 :
-            temp = (temp * 9/5) + 32
-        if tempunit == 2 :
-            temp = temp + 273.15
         time = get_time()
-        avg = (int(temp) + int(time))/2
+        avg = int(time)
         avg = int(avg)
         avg = str(avg)
         new_avg = avg[len(avg)-1] + avg[len(avg)-2]
@@ -205,17 +196,6 @@ def generate_api_key() :
 #    for x in range(12):
 #        encrypted += chr(ord(api_key[x]) + ord(secret_code[x]))
 #    return encrypted
-
-def get_temps() :
-    w = wmi.WMI(namespace="root\\OpenHardwareMonitor")
-    sensors = w.Sensor()
-    cpu_temps = []
-    for sensor in sensors:
-	    if sensor.SensorType==u'Temperature' and not 'GPU' in sensor.Name:
-		    cpu_temps += [float(sensor.Value)]
-	    elif sensor.SensorType==u'Temperature' and 'GPU' in sensor.Name:
-		    gpu_temp = sensor.Value
-    return avg(cpu_temps)
 
 def get_time() :
     dt = datetime.now()
