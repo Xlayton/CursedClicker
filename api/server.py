@@ -237,6 +237,30 @@ def getbosshealth():
     else :
         return jsonify({"message" : "no key provided"}), 400
 
+
+@app.route('/getimage', methods=['POST']) 
+def buyconsumable():
+    data = request.json
+    api_key = data["key"]
+    
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        email = data['email']
+        item_name = data['itemname']
+        bosstype = data["bosstype"]
+        switch(bosstype):
+            case "pumpkin":
+                return jsonify({"type":"pumpkin","numberofFrames":10,"path":"pumpkin"}), 201
+            break
+            case "skull":
+                return jsonify({"type":"skull","numberofFrames":9,"path":"skull"}), 201
+            break
+            case "candymonster":
+                return jsonify({"type":"candy","numberofFrames":10,"path":"candy"}), 201
+            break
+
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 # @app.route('/updatebossdamage', methods=['POST']) 
 # def updatebossdamage():
 #     data = request.json
