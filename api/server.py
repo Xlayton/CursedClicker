@@ -29,8 +29,16 @@ def register():
     uname = data["uname"]
     hashed = bcrypt.hashpw(str.encode(passwd), salt)
     hashpass = hashed
-    db.add_user(email,uname,hashpass.decode("utf-8"))
+    ipadd = request.remote_addr
+    db.add_user(email,uname,hashpass.decode("utf-8"), ipadd)
     return "user registered", 201
+
+@app.route('/getmykey', methods=['POST'])
+def get_key():
+    data = request.json
+    email = data["email"]
+    ipaddress = request.remote_addr
+    return db.get_api_key(email, ipaddress), 201
 
 @app.route('/login', methods=['POST']) 
 def login():
@@ -53,7 +61,7 @@ def login():
         dam = user["curdmg"]
         currentbal = user["curbalance"]
         # x = player(uid, uname, passwd,100,currentbal,dam, 10)
-        return email, 201
+        return json.loads(db.get_user(email)), 201
     else:
         return "passwords do not match",400
 
@@ -71,89 +79,139 @@ def login():
 @app.route('/getplayerdamage', methods=['POST']) 
 def getplayerdamage():
     data = request.json
-    email = data["email"]
-    user = json.loads(db.get_user(email))
-    return jsonify({"currentplayerdamage" : user["curdmg"] }), 201
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        email = data["email"]
+        user = json.loads(db.get_user(email))
+        return jsonify({"currentplayerdamage" : user["curdmg"] }), 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 @app.route('/updateplayerbalance', methods=['POST']) 
 def updateplayerbalance():
     data = request.json
     email = data["email"]
     amount = data["amount"]
-    db.give_money(email,amount)
-    user = json.loads(db.get_user(email))
-    return jsonify({"currentplayerbalance" : user["curbalance"] }), 201
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        db.give_money(email,amount, api_key)
+        user = json.loads(db.get_user(email))
+        return jsonify({"currentplayerbalance" : user["curbalance"] }), 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 @app.route('/getplayerbalance', methods=['POST']) 
 def getplayerbalance():
     data = request.json
-    email = data["email"]
-    user = json.loads(db.get_user(email))
-    return jsonify({"currentplayerbalance" : user["curbalance"] }), 201
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        email = data["email"]
+        user = json.loads(db.get_user(email))
+        return jsonify({"currentplayerbalance" : user["curbalance"] }), 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 @app.route('/getplayerinventory', methods=['POST']) 
 def getplayerinventory():
-    return jsonify(x.inventory), 201
+    data = request.json
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        return jsonify(x.inventory), 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 @app.route('/buyconsumable', methods=['POST']) 
 def buyconsumable():
     data = request.json
-    email = data['email']
-    item_name = data['itemname']
-    db.buy_consumable(email, item_name)
-    user = json.loads(db.get_user(email))
-    user.inventory.append(data)
-    return jsonify(user.inventory), 201
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        email = data['email']
+        item_name = data['itemname']
+        db.buy_consumable(email, item_name, api_key)
+        user = json.loads(db.get_user(email))
+        user.inventory.append(data)
+        return jsonify(user.inventory), 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 @app.route('/buyitem', methods=['POST']) 
 def buyitem():
     data = request.json
-    email = data['email']
-    itemname = data['itemname']
-    email = data['email']
-    (db.buy_item(email, itemname))
-    return "item was purchased", 201
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        data = request.json
+        email = data['email']
+        itemname = data['itemname']
+        email = data['email']
+        (db.buy_item(email, itemname, api_key))
+        return "item was purchased", 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 
 
 @app.route('/consume', methods=['POST']) 
 def consume():
     data = request.json
-    consumable_name = data['consumable_name']
-    email = data['email']
-    json.loads(db.consume(email, consumable_name))
-    return "item was consumed", 201
-
-
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        consumable_name = data['consumable_name']
+        email = data['email']
+        json.loads(db.consume(email, consumable_name, api_key))
+        return "item was consumed", 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 #boss functions
 @app.route('/updatebosshealth', methods=['POST']) 
 def updatebosshealth():
     data = request.json
-    newbosshealth =  b.currentbosshealth + data["currentbosshealthmodifier"]
-    b.currentbosshealth = newbosshealth
-    return jsonify({"currentbosshealth" : newbosshealth }), 201
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        newbosshealth =  b.currentbosshealth + data["currentbosshealthmodifier"]
+        b.currentbosshealth = newbosshealth
+        return jsonify({"currentbosshealth" : newbosshealth }), 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 @app.route('/attacktheboss', methods=['POST']) 
 def attacktheboss():
     data = request.json
-    useremail = data["email"]
-    user_inventory = json.loads(db.get_userinventory(useremail))
-    user = json.loads(db.get_user(useremail))
-    bn = data['boss_name']
-    bosshealth = json.loads(db.get_boss_health(bn))
-    iteminfo = json.loads(db.get_item(data['itemname']))
-    totaldamage = user["curdmg"] + iteminfo["dmginc"]
-    bosshealth = bosshealth - totaldamage
-    db.set_boss_health(bn,bosshealth)
-    return jsonify({"currentbosshealth" : bosshealth }), 201
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        useremail = data["email"]
+        user_inventory = json.loads(db.get_userinventory(useremail, api_key))
+        user = json.loads(db.get_user(useremail))
+        bn = data['boss_name']
+        bosshealth = json.loads(db.get_boss_health(bn))
+        iteminfo = json.loads(db.get_item(data['itemname']))
+        totaldamage = user["curdmg"] + iteminfo["dmginc"]
+        bosshealth = bosshealth - totaldamage
+        db.set_boss_health(bn,bosshealth, api_key)
+        return jsonify({"currentbosshealth" : bosshealth }), 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 @app.route('/getbosshealth', methods=['POST']) 
 def getbosshealth():
     data = request.json
-    bn = data['boss_name']
-    bosshealth = json.loads(db.get_boss_health(bn))
-    return jsonify({"currentbosshealth" : bosshealth }), 201
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if (valid) :
+        bn = data['boss_name']
+        bosshealth = json.loads(db.get_boss_health(bn))
+        return jsonify({"currentbosshealth" : bosshealth }), 201
+    else :
+        return jsonify({"message" : "no key provided"}), 400
 
 # @app.route('/updatebossdamage', methods=['POST']) 
 # def updatebossdamage():
