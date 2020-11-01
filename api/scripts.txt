@@ -7,9 +7,11 @@ CREATE TABLE consumables(id serial PRIMARY KEY, name STRING, price int, dmg int,
 CREATE TABLE bosses(id serial PRIMARY KEY, name STRING, health int)
 CREATE TABLE api_keys(key STRING PRIMARY KEY UNIQUE, userid serial REFERENCES users (id), ipaddress STRING)
 
-INSERT INTO items(name, price, cooldowntime, dmginc) VALUES('ice pack', 100, 10, 0), ('water cooling', 1000, 100, 0), ('liquid nitrogen', 100000, 1000, 0), ('damaging laser', 1000, 0, 1000), ('melting laser', 10000, 0, 10000), ('pulverizing laser', 10000000, 0, 100000)
-INSERT INTO consumables(name, price, dmg, speedinc, dmgmult) VALUES('bomb', 100, 10000, 0, 0), ('speed potion', 1000, 0, 10000, 0), ('acid pot', 10000, 0, 0, 2), ('companion', 100000, 0, 0, 2)
+INSERT INTO items(name, price, cooldowntime, dmginc) VALUES('ice pack', 100, 10, 0), ('water cooling', 1000, 100, 0), ('liquid nitrogen', 100000, 1000, 0), ('damaging laser', 1000, 0, 500), ('melting laser', 10000, 0, 1000), ('pulverizing laser', 10000000, 0, 2000)
+INSERT INTO consumables(name, price, dmg, speedinc, dmgmult) VALUES('bomb', 100, 10000, 0, 0), ('speed potion', 1000, 0, 10000, 0), ('companion', 100000, 0, 0, 2)
 INSERT INTO bosses(name, health) VALUES('pumpkin king', 10000000), ('skeleton head', 1000000), ('candy man', 10000000)
+
+cpu_temps += [float(sensor.Value)]
 
 def test_all_methods() :
     add_user("kilmo@gmail.com", "kilmo", "lima")

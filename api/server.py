@@ -3,10 +3,26 @@ import bcrypt
 import db
 import json
 import asyncio
+import sys
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
 CORS(app)
+
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["2147483647 per day", "2147483647 per hour"]
+)
+
+currentboss = {
+    "name" : "Pumpkin King",
+    "health" : 20000,
+    "currenthealth" : 20000,
+    "imgpath": "//skull/skull.gif"
+}
 
 #for creating a user
 #  salt = bcrypt.gensalt()
@@ -38,6 +54,9 @@ def image(filename):
 
     return send_from_directory('.', filename)
 
+@app.route('/getcurrentboss', methods=['GET'])
+def get_current_boss() :
+    return jsonify(currentboss), 200
 
 #player functions
 @app.route('/register', methods=['POST']) 
@@ -192,9 +211,8 @@ def buyconsumable():
         email = data['email']
         item_name = data['itemname']
         db.buy_consumable(email, item_name, api_key)
-        user = json.loads(db.get_user(email))
-        user.inventory.append(data)
-        return jsonify(user.inventory), 201
+        userinventory = db.get_userinventory(email, api_key)
+        return json.dumps(userinventory), 201
     else :
         return jsonify({"message" : "no key provided"}), 400
 
@@ -207,9 +225,8 @@ def buyitem():
         data = request.json
         email = data['email']
         itemname = data['itemname']
-        email = data['email']
-        (db.buy_item(email, itemname, api_key))
-        return jsonify({"item was purchased": "success"}), 201
+        db.buy_item(email, itemname, api_key)
+        return json.dumps(userinventory), 201
     else :
         return jsonify({"message" : "no key provided"}), 400
 
@@ -221,10 +238,12 @@ def consume():
     api_key = data["key"]
     valid = db.confirm_key(api_key)
     if (valid) :
-        consumable_name = data['consumable_name']
-        email = data['email']
-        json.loads(db.consume(email, consumable_name, api_key))
-        return "item was consumed", 201
+        consumable_name = data['itemname']
+        email = data['email']        
+        db.consume(email, consumable_name, api_key)
+        if(consumable_name == "bomb"):
+            currentboss["currenthealth"] -= 10000
+        return jsonify({"name" : currentboss["name"], "health" : currentboss["health"], "currenthealth" : currentboss["currenthealth"]}), 201
     else :
         return jsonify({"message" : "no key provided"}), 400
 
@@ -244,7 +263,20 @@ def updatebosshealth():
     else :
         return jsonify({"message" : "no key provided"}), 400
 
+@app.route('/getconsumables', methods=['GET'])
+def get_consumables():
+    resp = Response(db.get_consumables(), 200)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+@app.route('/getitems', methods=['GET'])
+def get_items():
+    resp = Response(db.get_items(), 200)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
 @app.route('/attacktheboss', methods=['POST']) 
+@limiter.limit("2147483647/second", override_defaults=True)
 def attacktheboss():
     data = request.json
     api_key = data["key"]
@@ -253,13 +285,22 @@ def attacktheboss():
         useremail = data["email"]
         user_inventory = json.loads(db.get_userinventory(useremail, api_key))
         user = json.loads(db.get_user(useremail))
-        bn = data['boss_name']
-        bosshealth = json.loads(db.get_boss_health(bn))
-        iteminfo = json.loads(db.get_item(data['itemname']))
-        totaldamage = user["curdmg"] + iteminfo["dmginc"]
-        bosshealth = bosshealth - totaldamage
-        db.set_boss_health(bn,bosshealth, api_key)
-        return jsonify({"currentbosshealth" : bosshealth }), 201
+        itemname = ""
+        if(user_inventory["pulverizinglaser"]['value'] == "True") :
+            itemname = "pulverizing laser"
+        elif(user_inventory["meltinglaser"]['value'] == "True") :
+            itemname = "melting laser"
+        elif(user_inventory["damaginglaser"]['value'] == "True") :
+            itemname = "damaging laser"
+        totaldamage = 0
+        if(itemname != "") :
+            iteminfo = json.loads(db.get_item(itemname))
+            totaldamage = int(user["curdmg"] + iteminfo["dmginc"])
+        else :
+            totaldamage = int(user["curdmg"])
+        currentboss["currenthealth"] -= totaldamage
+        db.give_money(useremail, 10000, api_key)
+        return jsonify({"health" : currentboss["health"], "currenthealth" : currentboss["currenthealth"], "name": currentboss["name"], "balance" : 10000}), 200
     else :
         return jsonify({"message" : "no key provided"}), 400
 
