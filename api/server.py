@@ -16,6 +16,7 @@ CORS(app)
 
 # print(x.currentplayerdamage + iteminfo["dmginc"])
 
+<<<<<<< Updated upstream
 
 
 @app.route('/<path:filename>')
@@ -39,6 +40,8 @@ def image(filename):
     return send_from_directory('.', filename)
 
 
+=======
+>>>>>>> Stashed changes
 #player functions
 @app.route('/register', methods=['POST']) 
 def register():
