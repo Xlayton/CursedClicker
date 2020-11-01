@@ -186,7 +186,7 @@ window.addEventListener("resize", resizeCanvas)
 for (let category of document.getElementsByClassName("shopCategory")) {
     category.addEventListener("click", () => setShopCategory(category.id))
 }
-for (let category of document.getElementsByClassName("shopCategory")) {
+for (let category of document.getElementsByClassName("itemCategory")) {
     category.addEventListener("click", () => setItemsCategory(category.id))
 }
 populateShop([{
