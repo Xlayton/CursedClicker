@@ -174,10 +174,13 @@ def consume():
 def updatebosshealth():
     data = request.json
     api_key = data["key"]
+    bn = data["bossname"]
     valid = db.confirm_key(api_key)
     if (valid) :
-        newbosshealth =  b.currentbosshealth + data["currentbosshealthmodifier"]
-        b.currentbosshealth = newbosshealth
+        bosshealth = json.loads(db.get_boss_health(bn))
+        newbosshealth =  bosshealth+ data["currentbosshealthmodifier"]
+        bosshealth = newbosshealth
+        db.set_boss_health(bn,bosshealth)
         return jsonify({"currentbosshealth" : newbosshealth }), 201
     else :
         return jsonify({"message" : "no key provided"}), 400
