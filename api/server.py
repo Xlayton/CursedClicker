@@ -32,6 +32,7 @@ currentboss = {
 
 # print(x.currentplayerdamage + iteminfo["dmginc"])
 
+<<<<<<< Updated upstream
 
 
 @app.route('/<path:filename>')
@@ -58,6 +59,8 @@ def image(filename):
 def get_current_boss() :
     return jsonify(currentboss), 200
 
+=======
+>>>>>>> Stashed changes
 #player functions
 @app.route('/register', methods=['POST']) 
 def register():
