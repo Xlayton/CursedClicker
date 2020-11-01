@@ -30,7 +30,7 @@ def register():
     hashed = bcrypt.hashpw(str.encode(passwd), salt)
     hashpass = hashed
     ipadd = request.remote_addr
-    db.add_user(email,uname,hashpass.decode("utf-8"), ipadd)
+    db.add_user(email,uname,hashpass.decode("utf-8"))
     return "user registered", 201
 
 @app.route('/getmykey', methods=['POST'])
