@@ -52,11 +52,27 @@ def get_userinventory(email, api_key) :
     data = json.loads(get_user(email))
     userid = data['id']
     result = run_sql_return(f'SELECT * FROM userinventories WHERE userid = \'{userid}\'')
-    return json.dumps({'id': result[0][0], 'icepack': { "value" : result[0][1], "type" : "upgrade", "imgpath" : "/upgrades/ice-pack/icepack1.png"}, 'watercooling': { "value" : result[0][2], "type" : "upgrade", "imgpath" : "/upgrades/water-cooling/water-cooling1.png"}, 'liquidnitrogen' : { "value" : result[0][3], "type" : "upgrade", "imgpath" : "/upgrades/nitrogen/nitrogen1.png"}, 'damaginglaser': { "value" : result[0][4], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser1.png"}, 'meltinglaser': { "value" : result[0][5], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser2.png"}, 'pulverizinglaser' : { "value" : result[0][6], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser3.png"}, 'bomb' : { "value" : result[0][7], "type" : "consumable", "imgpath" : "/consumable/bomb/bomb1.png"}, 'speedpotion' : {"value" : result[0][8], "type" : "consumable", "imgpath" : "/consumable/potion/potion1.png"}, 'acidpot' : {"value" : result[0][9], "type" : "consumable"}, 'companion' : { "value" : result[0][10], "type" : "consumable", "imgpath" : "/consumable/companion/companion1.png"}})
+    return json.dumps({'id': result[0][0], 'icepack': { "value" : result[0][1], "type" : "upgrade", "imgpath" : "/upgrades/ice-pack/icepack1.png"}, 'watercooling': { "value" : result[0][2], "type" : "upgrade", "imgpath" : "/upgrades/water-cooling/water-cooling1.png"}, 'liquidnitrogen' : { "value" : result[0][3], "type" : "upgrade", "imgpath" : "/upgrades/nitrogen/nitrogen1.png"}, 'damaginglaser': { "value" : result[0][4], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser1.png"}, 'meltinglaser': { "value" : result[0][5], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser2.png"}, 'pulverizinglaser' : { "value" : result[0][6], "type" : "upgrade", "imgpath" : "/upgrades/laser/laser3.png"}, 'bomb' : { "value" : result[0][7], "type" : "consumable", "imgpath" : "/consumable/bomb/bomb1.png"}, 'speedpotion' : {"value" : result[0][8], "type" : "consumable", "imgpath" : "/consumable/potion/potion1.png"}, 'companion' : { "value" : result[0][10], "type" : "consumable", "imgpath" : "/consumable/companion/companion1.png"}})
 
 def get_item(name) :
     result = run_sql_return(f'SELECT * FROM items WHERE name = \'{name}\'')
     return json.dumps({'id': result[0][0], 'name': result[0][1], 'price' : result[0][2], 'cooldowntime': result[0][3], 'dmginc': result[0][4]})
+
+def get_items() :
+    result = run_sql_return(f'SELECT * FROM items')
+    items = []
+    for row in result :
+        item = ({'id': row[0], 'name': row[1], 'price': row[2], 'cooldowntime': row[3], 'dmginc': row[4]})
+        items.append(item)
+    return json.dumps(items)
+
+def get_consumables() :
+    result = run_sql_return(f'SELECT * FROM consumables')
+    items = []
+    for row in result :
+        item = ({'id': row[0], 'name': row[1], 'price': row[2], 'dmg': row[3], 'speedinc': row[4], 'dmgmult': row[5]})
+        items.append(item)
+    return json.dumps(items)
 
 def buy_item(email, item_name, api_key) :
     data = json.loads(get_item(item_name))
@@ -127,7 +143,7 @@ def create_all_tables() :
 
 def fill_all_tables() :
     run_sql('INSERT INTO items(name, price, cooldowntime, dmginc) VALUES(\'ice pack\', 100, 200, 0), (\'water cooling\', 1000, 300, 0), (\'liquid nitrogen\', 100000, 400, 0), (\'damaging laser\', 1000, 0, 200), (\'melting laser\', 10000, 0, 300), (\'pulverizing laser\', 10000000, 0, 400)')
-    run_sql('INSERT INTO consumables(name, price, dmg, speedinc, dmgmult) VALUES(\'bomb\', 100, 10000, 0, 0), (\'speed potion\', 1000, 0, 10000, 0), (\'acid pot\', 10000, 0, 0, 2), (\'companion\', 100000, 0, 0, 2)')
+    run_sql('INSERT INTO consumables(name, price, dmg, speedinc, dmgmult) VALUES(\'bomb\', 100, 10000, 0, 0), (\'speed potion\', 1000, 0, 10000, 0), (\'companion\', 100000, 0, 0, 2)')
     run_sql('INSERT INTO bosses(name, health) VALUES(\'pumpkin king\', 10000000), (\'skeleton head\', 10000000), (\'candy man\', 10000000)')
     print("all tables have been filled")
 
