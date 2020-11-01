@@ -13,17 +13,17 @@ conn = psycopg2.connect(
     host='cursed-clicker-5zg.gcp-us-west2.cockroachlabs.cloud'
 )
 
-def add_user(email, username, password, ipaddress) :
+def add_user(email, username, password) :
     run_sql(f'INSERT INTO users(email, username, password, curdmg, curbalance) VALUES (\'{email}\', \'{username}\', \'{password}\', 100, 0)')
     data = json.loads(get_user(email))
     uid = data['id']
     run_sql(f'INSERT INTO userinventories(userid, icepack, watercooling, liquidnitrogen, damaginglaser, meltinglaser, pulverizinglaser, bomb, speedpotion, acidpot, companion) VALUES (\'{uid}\', false, false, false, false, false, false, 0, 0, 0, 0)')
-    run_sql(f'INSERT INTO api_keys(key, userid, ipaddress) VALUES(\'{generate_api_key()}\', {uid}, \'{ipaddress}\')')
+    run_sql(f'INSERT INTO api_keys(key, userid) VALUES(\'{generate_api_key()}\', {uid})')
 
-def get_api_key(email, ipaddress) :
+def get_api_key(email) :
     data = json.loads(get_user(email))
     uid = data['id']
-    result = run_sql_return(f'SELECT key FROM api_keys WHERE userid = {uid} AND ipaddress = \'{ipaddress}\'')
+    result = run_sql_return(f'SELECT key FROM api_keys WHERE userid = {uid}')
     return json.dumps({'key' : result[0][0]})
 
 def confirm_key(api_key) :
@@ -122,7 +122,7 @@ def create_all_tables() :
     run_sql('CREATE TABLE items(id serial PRIMARY KEY, name STRING, price int, cooldowntime int, dmginc int)')
     run_sql('CREATE TABLE consumables(id serial PRIMARY KEY, name STRING, price int, dmg int, speedinc int, dmgmult int)')
     run_sql('CREATE TABLE bosses(id serial PRIMARY KEY, name STRING, health int)')
-    run_sql('CREATE TABLE api_keys(key STRING PRIMARY KEY, userid serial REFERENCES users (id), ipaddress STRING)')
+    run_sql('CREATE TABLE api_keys(key STRING PRIMARY KEY, userid serial REFERENCES users (id))')
     print("all tables are created")
 
 def fill_all_tables() :

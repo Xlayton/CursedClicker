@@ -1,11 +1,12 @@
-from flask import Flask, jsonify, make_response, request, abort
+from flask import Flask, jsonify, make_response, request, abort, Response
 import bcrypt
 import db
 import json
 import asyncio
-
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 #for creating a user
 #  salt = bcrypt.gensalt()
@@ -31,19 +32,27 @@ def register():
     hashpass = hashed
     ipadd = request.remote_addr
     db.add_user(email,uname,hashpass.decode("utf-8"))
-    return "user registered", 201
+    resp = Response("user registered", 201)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+   
 
 @app.route('/getmykey', methods=['POST'])
 def get_key():
     data = request.json
     email = data["email"]
     ipaddress = request.remote_addr
-    return db.get_api_key(email, ipaddress), 201
+    resp = Response(db.get_api_key(email), 201)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+   
 
 @app.route('/login', methods=['POST']) 
 def login():
     data = request.json
     email = data["email"]
+    print(email)
+    print(db.get_user(email))
     user = json.loads(db.get_user(email))
     password = data["password"]
 
@@ -61,7 +70,10 @@ def login():
         dam = user["curdmg"]
         currentbal = user["curbalance"]
         # x = player(uid, uname, passwd,100,currentbal,dam, 10)
-        return json.loads(db.get_user(email)), 201
+        
+        resp = Response(db.get_user(email), 201)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
     else:
         return "passwords do not match",400
 
@@ -81,12 +93,19 @@ def getplayerdamage():
     data = request.json
     api_key = data["key"]
     valid = db.confirm_key(api_key)
+    
     if (valid) :
         email = data["email"]
         user = json.loads(db.get_user(email))
-        return jsonify({"currentplayerdamage" : user["curdmg"] }), 201
+        resp = Response( jsonify({"currentplayerdamage" : user["curdmg"] }), 201)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
+        
     else :
-        return jsonify({"message" : "no key provided"}), 400
+        resp = Response(jsonify({"message" : "no key provided"}), 400)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
+       
 
 @app.route('/updateplayerbalance', methods=['POST']) 
 def updateplayerbalance():
@@ -150,7 +169,7 @@ def buyitem():
         itemname = data['itemname']
         email = data['email']
         (db.buy_item(email, itemname, api_key))
-        return "item was purchased", 201
+        return jsonify({"item was purchased": "success"}), 201
     else :
         return jsonify({"message" : "no key provided"}), 400
 
