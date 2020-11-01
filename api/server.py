@@ -137,10 +137,12 @@ def getplayerbalance():
 def getplayerinventory():
     data = request.json
     api_key = data["key"]
+    email = data["email"]
     valid = db.confirm_key(api_key)
+    a = json.loads(db.get_userinventory(email,api_key))
     if (valid) :
-        return jsonify(x.inventory), 201
-    else :
+        return a, 201
+    else :  
         return jsonify({"message" : "no key provided"}), 400
 
 @app.route('/buyconsumable', methods=['POST']) 
