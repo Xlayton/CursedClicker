@@ -31,6 +31,7 @@ var upgrades = []
 var name = ""
 var maxHealth = 0
 var currentHealth = 0
+var imgPath = ""
 
 //- TEST STUFF -//
 var testAttackCooldown = 500
@@ -240,7 +241,7 @@ function animate() {
     drawHealthBar(currentHealth, maxHealth)
     drawMoney()
     drawName(name)
-    // renderEnemy("/candy/candy", 9)
+    renderEnemy("/pumpkin/pumpkin", 10)
     window.requestAnimationFrame(animate)
 }
 
@@ -340,5 +341,6 @@ fetch(apiurl + "/getcurrentboss", {
         name = data.name
         maxHealth = data.health
         currentHealth = data.currenthealth
+        imgPath = data.imgpath
     })
 animate();
