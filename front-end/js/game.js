@@ -1,3 +1,9 @@
+if (!/email/.test(document.cookie) || !/key/.test(document.cookie)) window.location = "./login";
+var key = document.cookie.match(/(?<=key=)\S*/)[0].replace(";", "")
+var email = document.cookie.match(/(?<=email=)\S*/)[0].replace(";", "")
+
+var apiurl = "http://f8f303c7ee02.ngrok.io"
+
 var canvas = document.getElementById("gameCanvas");
 var ctx = canvas.getContext("2d");
 
@@ -18,13 +24,11 @@ var canUserAttack = true;
 var enemyFrame = 1;
 var doFrameIncrement = false
 var isFrameForward = true
-var laserFrameCount = 5
 
 //- TEST STUFF -//
 var testHealth = 1000000
 var testHealthRemaining = testHealth
 var testName = "Candy Monster"
-var shouldHealthDecrease = true
 var testAttackCooldown = 500
 //- TEST STUFF END -//
 
@@ -158,11 +162,6 @@ function setShopCategory(categoryName) {
         category.classList.remove("selected")
         if (category.id === categoryName) category.classList.add("selected");
     }
-    populateShop([{
-        url: "/bomb.png",
-        price: 10,
-        name: "Bomb"
-    }])
 }
 
 function setItemsCategory(categoryName) {
@@ -171,10 +170,6 @@ function setItemsCategory(categoryName) {
         category.classList.remove("selected")
         if (category.id === categoryName) category.classList.add("selected");
     }
-    populateItems([{
-        url: "/bomb.png",
-        amount: 3
-    }])
 }
 
 canvas.height = canvas.parentElement.clientHeight
@@ -186,16 +181,21 @@ window.addEventListener("resize", resizeCanvas)
 for (let category of document.getElementsByClassName("shopCategory")) {
     category.addEventListener("click", () => setShopCategory(category.id))
 }
-for (let category of document.getElementsByClassName("shopCategory")) {
+for (let category of document.getElementsByClassName("itemCategory")) {
     category.addEventListener("click", () => setItemsCategory(category.id))
 }
-populateShop([{
-    url: "/bomb.png",
-    price: 10,
-    name: "Bomb"
-}])
-populateItems([{
-    url: "/bomb.png",
-    amount: 3
-}])
+
+console.log(email, key)
+
+fetch(apiurl + "/getplayerinventory", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "email": email,
+            "key": key
+        })
+    }).then(res => res.json())
+    .then(f => console.log(f))
 animate();

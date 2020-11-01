@@ -1,6 +1,7 @@
+import random
+from datetime import datetime
 import psycopg2
 import json
-import secrets
 from psycopg2.errors import SerializationFailure
 
 conn = psycopg2.connect(
@@ -17,6 +18,20 @@ def add_user(email, username, password) :
     data = json.loads(get_user(email))
     uid = data['id']
     run_sql(f'INSERT INTO userinventories(userid, icepack, watercooling, liquidnitrogen, damaginglaser, meltinglaser, pulverizinglaser, bomb, speedpotion, acidpot, companion) VALUES (\'{uid}\', false, false, false, false, false, false, 0, 0, 0, 0)')
+    run_sql(f'INSERT INTO api_keys(key, userid) VALUES(\'{generate_api_key()}\', {uid})')
+
+def get_api_key(email) :
+    data = json.loads(get_user(email))
+    uid = data['id']
+    result = run_sql_return(f'SELECT key FROM api_keys WHERE userid = {uid}')
+    return json.dumps({'key' : result[0][0]})
+
+def confirm_key(api_key) :
+    result = run_sql_return(f'SELECT * FROM api_keys WHERE key = \'{api_key}\'')
+    if result is not None:
+        return True
+    else :
+        return False
 
 def get_user(email) :
     result = run_sql_return(f'SELECT * FROM users WHERE email = \'{email}\'')
@@ -30,10 +45,10 @@ def get_users() :
         items.append(item)
     return json.dumps(items)
 
-def give_money(email, amount) :
+def give_money(email, amount, api_key) :
     run_sql(f'UPDATE users SET curbalance = curbalance + {amount} WHERE email = \'{email}\'')
 
-def get_userinventory(email) :
+def get_userinventory(email, api_key) :
     data = json.loads(get_user(email))
     userid = data['id']
     result = run_sql_return(f'SELECT * FROM userinventories WHERE userid = \'{userid}\'')
@@ -43,7 +58,7 @@ def get_item(name) :
     result = run_sql_return(f'SELECT * FROM items WHERE name = \'{name}\'')
     return json.dumps({'id': result[0][0], 'name': result[0][1], 'price' : result[0][2], 'cooldowntime': result[0][3], 'dmginc': result[0][4]})
 
-def buy_item(email, item_name) :
+def buy_item(email, item_name, api_key) :
     data = json.loads(get_item(item_name))
     price = data['price']
     item_name = data['name']
@@ -63,11 +78,11 @@ def get_consumables() :
         items.append(item)
     return json.dumps(items)
 
-def consume(email, consumable_name) :
+def consume(email, consumable_name, api_key) :
     consumable_name = consumable_name.replace(" ", "")
     run_sql(f'UPDATE userinventories SET {consumable_name} = {consumable_name} - 1 FROM users AS u WHERE email = \'{email}\' AND {consumable_name} > 0')
 
-def buy_consumable(email, consumable_name) :
+def buy_consumable(email, consumable_name, api_key) :
     data = json.loads(get_consumable(consumable_name))
     price = data['price']
     item_name = data['name']
@@ -83,7 +98,7 @@ def get_boss_health(boss_name) :
     result = run_sql_return(f'SELECT health FROM bosses WHERE name = \'{boss_name}\'')
     return json.dumps({'health' : result[0][0] })
 
-def boss_take_dmg(boss_name, amount) :
+def boss_take_dmg(boss_name, amount, api_key) :
     run_sql(f'UPDATE bosses SET health = health - {amount} WHERE name = \'{boss_name}\'')
 
 def set_boss_health(boss_name, amount) :
@@ -107,6 +122,7 @@ def create_all_tables() :
     run_sql('CREATE TABLE items(id serial PRIMARY KEY, name STRING, price int, cooldowntime int, dmginc int)')
     run_sql('CREATE TABLE consumables(id serial PRIMARY KEY, name STRING, price int, dmg int, speedinc int, dmgmult int)')
     run_sql('CREATE TABLE bosses(id serial PRIMARY KEY, name STRING, health int)')
+    run_sql('CREATE TABLE api_keys(key STRING PRIMARY KEY, userid serial REFERENCES users (id))')
     print("all tables are created")
 
 def fill_all_tables() :
@@ -121,9 +137,11 @@ def clear_all_data() :
     run_sql('DELETE FROM bosses')
     run_sql('DELETE FROM items')
     run_sql('DELETE FROM consumables')
+    run_sql('DELETE FROM api_keys')
     print("all data cleared")
 
 def drop_all_tables() :
+    run_sql('DROP TABLE api_keys')
     run_sql('DROP TABLE userinventories')
     run_sql('DROP TABLE users')
     run_sql('DROP TABLE bosses')
@@ -147,10 +165,38 @@ def test_all_methods() :
     boss_take_dmg("pumpkin king", 100)
     print(get_boss_health("pumpkin king"))
 
-def cipher() :
-    requests.get()
-    key = secrets.token_bytes(16)
-    return key
+def avg(value_list):
+	num = 0
+	length = len(value_list)
+	for val in value_list:
+		num += val
+	return num/length
 
-boss_take_dmg("pumpkin king", 100)
-print(get_boss_health("pumpkin king"))
+def generate_api_key() :
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`!@#$%^&*"
+    result = ""
+    for x in range(12):
+        time = get_time()
+        avg = int(time)
+        avg = int(avg)
+        avg = str(avg)
+        new_avg = avg[len(avg)-1] + avg[len(avg)-2]
+        new_avg = int(new_avg)
+        if new_avg > 70 :
+            new_avg = new_avg % 70
+        result += alphabet[new_avg]
+    return result
+
+#def generate_api_key() :
+#    api_key = get_random()
+#    print(api_key)
+#    secret_code = get_random()
+#    print(secret_code)
+#    encrypted = ""
+#    for x in range(12):
+#        encrypted += chr(ord(api_key[x]) + ord(secret_code[x]))
+#    return encrypted
+
+def get_time() :
+    dt = datetime.now()
+    return dt.microsecond
