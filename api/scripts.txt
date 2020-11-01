@@ -5,6 +5,7 @@ CREATE TABLE userinventories(userid serial NOT NULL REFERENCES users (id), icepa
 CREATE TABLE items(id serial PRIMARY KEY, name STRING, price int, cooldowntime int, dmginc int)
 CREATE TABLE consumables(id serial PRIMARY KEY, name STRING, price int, dmg int, speedinc int, dmgmult int)
 CREATE TABLE bosses(id serial PRIMARY KEY, name STRING, health int)
+CREATE TABLE api_keys(key STRING PRIMARY KEY UNIQUE, userid serial REFERENCES users (id), ipaddress STRING)
 
 INSERT INTO items(name, price, cooldowntime, dmginc) VALUES('ice pack', 100, 10, 0), ('water cooling', 1000, 100, 0), ('liquid nitrogen', 100000, 1000, 0), ('damaging laser', 1000, 0, 1000), ('melting laser', 10000, 0, 10000), ('pulverizing laser', 10000000, 0, 100000)
 INSERT INTO consumables(name, price, dmg, speedinc, dmgmult) VALUES('bomb', 100, 10000, 0, 0), ('speed potion', 1000, 0, 10000, 0), ('acid pot', 10000, 0, 0, 2), ('companion', 100000, 0, 0, 2)
