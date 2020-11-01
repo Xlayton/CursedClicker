@@ -1,4 +1,4 @@
-var apiurl = "http://f8f303c7ee02.ngrok.io"
+var apiurl = "http://93dc8cc5696e.ngrok.io/"
 
 function register() {
     var email = document.getElementById("email")
