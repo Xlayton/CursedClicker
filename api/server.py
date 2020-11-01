@@ -105,7 +105,27 @@ def getplayerdamage():
         resp = Response(jsonify({"message" : "no key provided"}), 400)
         resp.headers['Access-Control-Allow-Origin'] = '*'
         return resp
-       
+
+@app.route('/getcooldown', methods=['POST'])      
+def getcooldown():
+    data = request.json
+    api_key = data["key"]
+    valid = db.confirm_key(api_key)
+    if(valid) :
+        email = data["email"]
+        user = json.loads(db.get_user(email))
+        uid = user['id']
+        a = json.loads(db.get_userinventory(uid))
+        if(a.liquidnitrogen) :
+            b = json.loads(db.get_item("liquid nitrogen"))
+            return b['cooldowntime']
+        else if(a.watercooling) :
+            b = json.loads(db.get_item("water cooling"))
+            return b['cooldowntime']
+        else if(a.icepack) :
+            b = json.loads(db.get_item("ice pack"))
+            return b['cooldowntime'])
+        a["icepack"]
 
 @app.route('/updateplayerbalance', methods=['POST']) 
 def updateplayerbalance():
